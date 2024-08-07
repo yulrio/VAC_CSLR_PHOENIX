@@ -1,0 +1,30 @@
+diff --git a/configs/baseline.yaml b/configs/baseline.yaml
+index fb19786..fa1b045 100644
+--- a/configs/baseline.yaml
++++ b/configs/baseline.yaml
+@@ -2,12 +2,12 @@ feeder: dataset.dataloader_video.BaseFeeder
+ phase: train
+ dataset: phoenix14
+ # dataset: phoenix14-si5
+-num_epoch: 40
++num_epoch: 10 #40
+ work_dir: ./work_dir/baseline_res18/
+-batch_size: 2
++batch_size: 1 #2
+ random_seed: 0
+-test_batch_size: 8
+-num_worker: 10
++test_batch_size: 1 #8
++num_worker: 0 #10
+ device: 0,1
+ log_interval: 50
+ eval_interval: 1
+@@ -37,7 +37,7 @@ feeder_args:
+   drop_ratio: 1.0
+ 
+ model: slr_network.SLRModel
+-decode_mode: beam
++decode_mode: greedy #beam
+ model_args:
+   num_classes: 1296
+   c2d_type: resnet18
