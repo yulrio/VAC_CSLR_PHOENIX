@@ -1,30 +1,366 @@
 diff --git a/configs/baseline.yaml b/configs/baseline.yaml
-index fb19786..fa1b045 100644
+index fa1b045..6331ab7 100644
 --- a/configs/baseline.yaml
 +++ b/configs/baseline.yaml
-@@ -2,12 +2,12 @@ feeder: dataset.dataloader_video.BaseFeeder
- phase: train
- dataset: phoenix14
- # dataset: phoenix14-si5
--num_epoch: 40
-+num_epoch: 10 #40
- work_dir: ./work_dir/baseline_res18/
--batch_size: 2
-+batch_size: 1 #2
- random_seed: 0
--test_batch_size: 8
--num_worker: 10
-+test_batch_size: 1 #8
-+num_worker: 0 #10
- device: 0,1
- log_interval: 50
- eval_interval: 1
-@@ -37,7 +37,7 @@ feeder_args:
+@@ -37,10 +37,10 @@ feeder_args:
    drop_ratio: 1.0
  
  model: slr_network.SLRModel
--decode_mode: beam
-+decode_mode: greedy #beam
+-decode_mode: greedy #beam
++decode_mode: beam
  model_args:
    num_classes: 1296
-   c2d_type: resnet18
+-  c2d_type: resnet18
++  c2d_type: mobilenet_v2 #resnet18
+   conv_type: 2
+   use_bn: 1
+   # SMKD
+diff --git a/main.py b/main.py
+index eadaf28..e7dacf8 100644
+--- a/main.py
++++ b/main.py
+@@ -190,6 +190,7 @@ def import_class(name):
+ if __name__ == '__main__':
+     sparser = utils.get_parser()
+     p = sparser.parse_args()
++    print(p)
+     # p.config = "baseline_iter.yaml"
+     if p.config is not None:
+         with open(p.config, 'r') as f:
+diff --git a/work_dir/baseline_res18/code.tar.gz b/work_dir/baseline_res18/code.tar.gz
+index a1e3f0b..de97d1a 100644
+Binary files a/work_dir/baseline_res18/code.tar.gz and b/work_dir/baseline_res18/code.tar.gz differ
+diff --git a/work_dir/baseline_res18/config.yaml b/work_dir/baseline_res18/config.yaml
+index 76cd2f0..6a65eca 100644
+--- a/work_dir/baseline_res18/config.yaml
++++ b/work_dir/baseline_res18/config.yaml
+@@ -6,7 +6,7 @@ dataset_info:
+   dict_path: ./preprocess/phoenix2014/gloss_dict.npy
+   evaluation_dir: ./evaluation/slr_eval
+   evaluation_prefix: phoenix2014-groundtruth
+-decode_mode: greedy
++decode_mode: beam
+ device: '0'
+ eval_interval: 1
+ evaluate_tool: sclite
+@@ -24,7 +24,7 @@ loss_weights:
+   SeqCTC: 1.0
+ model: slr_network.SLRModel
+ model_args:
+-  c2d_type: resnet18
++  c2d_type: mobilenet_v2
+   conv_type: 2
+   num_classes: 1296
+   share_classifier: false
+diff --git a/work_dir/baseline_res18/dirty.patch b/work_dir/baseline_res18/dirty.patch
+index bb13152..25c34d5 100644
+--- a/work_dir/baseline_res18/dirty.patch
++++ b/work_dir/baseline_res18/dirty.patch
+@@ -1,30 +1,264 @@
+ diff --git a/configs/baseline.yaml b/configs/baseline.yaml
+-index fb19786..fa1b045 100644
++index fa1b045..e2b6fdc 100644
+ --- a/configs/baseline.yaml
+ +++ b/configs/baseline.yaml
+-@@ -2,12 +2,12 @@ feeder: dataset.dataloader_video.BaseFeeder
+- phase: train
+- dataset: phoenix14
+- # dataset: phoenix14-si5
+--num_epoch: 40
+-+num_epoch: 10 #40
+- work_dir: ./work_dir/baseline_res18/
+--batch_size: 2
+-+batch_size: 1 #2
+- random_seed: 0
+--test_batch_size: 8
+--num_worker: 10
+-+test_batch_size: 1 #8
+-+num_worker: 0 #10
+- device: 0,1
+- log_interval: 50
+- eval_interval: 1
+-@@ -37,7 +37,7 @@ feeder_args:
++@@ -37,10 +37,10 @@ feeder_args:
+    drop_ratio: 1.0
+  
+  model: slr_network.SLRModel
+--decode_mode: beam
+-+decode_mode: greedy #beam
++-decode_mode: greedy #beam
+++decode_mode: beam
+  model_args:
+-   num_classes: 1296
+-   c2d_type: resnet18
++-  num_classes: 1296
++-  c2d_type: resnet18
+++  num_classes: 1200
+++  c2d_type: mobilenet_v2 #resnet18
++   conv_type: 2
++   use_bn: 1
++   # SMKD
++diff --git a/work_dir/baseline_res18/code.tar.gz b/work_dir/baseline_res18/code.tar.gz
++index a1e3f0b..de97d1a 100644
++Binary files a/work_dir/baseline_res18/code.tar.gz and b/work_dir/baseline_res18/code.tar.gz differ
++diff --git a/work_dir/baseline_res18/config.yaml b/work_dir/baseline_res18/config.yaml
++index 76cd2f0..7d3c003 100644
++--- a/work_dir/baseline_res18/config.yaml
+++++ b/work_dir/baseline_res18/config.yaml
++@@ -6,7 +6,7 @@ dataset_info:
++   dict_path: ./preprocess/phoenix2014/gloss_dict.npy
++   evaluation_dir: ./evaluation/slr_eval
++   evaluation_prefix: phoenix2014-groundtruth
++-decode_mode: greedy
+++decode_mode: beam
++ device: '0'
++ eval_interval: 1
++ evaluate_tool: sclite
++@@ -24,9 +24,9 @@ loss_weights:
++   SeqCTC: 1.0
++ model: slr_network.SLRModel
++ model_args:
++-  c2d_type: resnet18
+++  c2d_type: mobilenet_v2
++   conv_type: 2
++-  num_classes: 1296
+++  num_classes: 1200
++   share_classifier: false
++   use_bn: 1
++   weight_norm: false
++diff --git a/work_dir/baseline_res18/dirty.patch b/work_dir/baseline_res18/dirty.patch
++index bb13152..34211a2 100644
++--- a/work_dir/baseline_res18/dirty.patch
+++++ b/work_dir/baseline_res18/dirty.patch
++@@ -1,30 +1,174 @@
++ diff --git a/configs/baseline.yaml b/configs/baseline.yaml
++-index fb19786..fa1b045 100644
+++index fa1b045..6331ab7 100644
++ --- a/configs/baseline.yaml
++ +++ b/configs/baseline.yaml
++-@@ -2,12 +2,12 @@ feeder: dataset.dataloader_video.BaseFeeder
++- phase: train
++- dataset: phoenix14
++- # dataset: phoenix14-si5
++--num_epoch: 40
++-+num_epoch: 10 #40
++- work_dir: ./work_dir/baseline_res18/
++--batch_size: 2
++-+batch_size: 1 #2
++- random_seed: 0
++--test_batch_size: 8
++--num_worker: 10
++-+test_batch_size: 1 #8
++-+num_worker: 0 #10
++- device: 0,1
++- log_interval: 50
++- eval_interval: 1
++-@@ -37,7 +37,7 @@ feeder_args:
+++@@ -37,10 +37,10 @@ feeder_args:
++    drop_ratio: 1.0
++  
++  model: slr_network.SLRModel
++--decode_mode: beam
++-+decode_mode: greedy #beam
+++-decode_mode: greedy #beam
++++decode_mode: beam
+++ model_args:
+++   num_classes: 1296
+++-  c2d_type: resnet18
++++  c2d_type: mobilenet_v2 #resnet18
+++   conv_type: 2
+++   use_bn: 1
+++   # SMKD
+++diff --git a/work_dir/baseline_res18/code.tar.gz b/work_dir/baseline_res18/code.tar.gz
+++index a1e3f0b..de97d1a 100644
+++Binary files a/work_dir/baseline_res18/code.tar.gz and b/work_dir/baseline_res18/code.tar.gz differ
+++diff --git a/work_dir/baseline_res18/config.yaml b/work_dir/baseline_res18/config.yaml
+++index 76cd2f0..6a65eca 100644
+++--- a/work_dir/baseline_res18/config.yaml
++++++ b/work_dir/baseline_res18/config.yaml
+++@@ -6,7 +6,7 @@ dataset_info:
+++   dict_path: ./preprocess/phoenix2014/gloss_dict.npy
+++   evaluation_dir: ./evaluation/slr_eval
+++   evaluation_prefix: phoenix2014-groundtruth
+++-decode_mode: greedy
++++decode_mode: beam
+++ device: '0'
+++ eval_interval: 1
+++ evaluate_tool: sclite
+++@@ -24,7 +24,7 @@ loss_weights:
+++   SeqCTC: 1.0
+++ model: slr_network.SLRModel
++  model_args:
+++-  c2d_type: resnet18
++++  c2d_type: mobilenet_v2
+++   conv_type: 2
++    num_classes: 1296
++-   c2d_type: resnet18
+++   share_classifier: false
+++diff --git a/work_dir/baseline_res18/dirty.patch b/work_dir/baseline_res18/dirty.patch
+++index bb13152..c23b2bc 100644
+++--- a/work_dir/baseline_res18/dirty.patch
++++++ b/work_dir/baseline_res18/dirty.patch
+++@@ -1,30 +1,91 @@
+++ diff --git a/configs/baseline.yaml b/configs/baseline.yaml
+++-index fb19786..fa1b045 100644
++++index fa1b045..2e2a3d0 100644
+++ --- a/configs/baseline.yaml
+++ +++ b/configs/baseline.yaml
+++-@@ -2,12 +2,12 @@ feeder: dataset.dataloader_video.BaseFeeder
+++- phase: train
+++- dataset: phoenix14
+++- # dataset: phoenix14-si5
+++--num_epoch: 40
+++-+num_epoch: 10 #40
+++- work_dir: ./work_dir/baseline_res18/
+++--batch_size: 2
+++-+batch_size: 1 #2
+++- random_seed: 0
+++--test_batch_size: 8
+++--num_worker: 10
+++-+test_batch_size: 1 #8
+++-+num_worker: 0 #10
+++- device: 0,1
+++- log_interval: 50
+++- eval_interval: 1
+++-@@ -37,7 +37,7 @@ feeder_args:
++++@@ -37,10 +37,10 @@ feeder_args:
+++    drop_ratio: 1.0
+++  
+++  model: slr_network.SLRModel
+++--decode_mode: beam
+++-+decode_mode: greedy #beam
++++-decode_mode: greedy #beam
+++++decode_mode: beam
++++ model_args:
++++   num_classes: 1296
++++-  c2d_type: resnet18
+++++  c2d_type: vgg16 #resnet18
++++   conv_type: 2
++++   use_bn: 1
++++   # SMKD
++++diff --git a/work_dir/baseline_res18/code.tar.gz b/work_dir/baseline_res18/code.tar.gz
++++index a1e3f0b..de97d1a 100644
++++Binary files a/work_dir/baseline_res18/code.tar.gz and b/work_dir/baseline_res18/code.tar.gz differ
++++diff --git a/work_dir/baseline_res18/config.yaml b/work_dir/baseline_res18/config.yaml
++++index 76cd2f0..5cfe198 100644
++++--- a/work_dir/baseline_res18/config.yaml
+++++++ b/work_dir/baseline_res18/config.yaml
++++@@ -6,7 +6,7 @@ dataset_info:
++++   dict_path: ./preprocess/phoenix2014/gloss_dict.npy
++++   evaluation_dir: ./evaluation/slr_eval
++++   evaluation_prefix: phoenix2014-groundtruth
++++-decode_mode: greedy
+++++decode_mode: beam
++++ device: '0'
++++ eval_interval: 1
++++ evaluate_tool: sclite
++++@@ -24,7 +24,7 @@ loss_weights:
++++   SeqCTC: 1.0
++++ model: slr_network.SLRModel
+++  model_args:
++++-  c2d_type: resnet18
+++++  c2d_type: vgg16
++++   conv_type: 2
+++    num_classes: 1296
+++-   c2d_type: resnet18
++++   share_classifier: false
++++diff --git a/work_dir/baseline_res18/dirty.patch b/work_dir/baseline_res18/dirty.patch
++++index bb13152..7bcf823 100644
++++--- a/work_dir/baseline_res18/dirty.patch
+++++++ b/work_dir/baseline_res18/dirty.patch
++++@@ -1,30 +1,3 @@
++++-diff --git a/configs/baseline.yaml b/configs/baseline.yaml
++++-index fb19786..fa1b045 100644
++++---- a/configs/baseline.yaml
++++-+++ b/configs/baseline.yaml
++++-@@ -2,12 +2,12 @@ feeder: dataset.dataloader_video.BaseFeeder
++++- phase: train
++++- dataset: phoenix14
++++- # dataset: phoenix14-si5
++++--num_epoch: 40
++++-+num_epoch: 10 #40
++++- work_dir: ./work_dir/baseline_res18/
++++--batch_size: 2
++++-+batch_size: 1 #2
++++- random_seed: 0
++++--test_batch_size: 8
++++--num_worker: 10
++++-+test_batch_size: 1 #8
++++-+num_worker: 0 #10
++++- device: 0,1
++++- log_interval: 50
++++- eval_interval: 1
++++-@@ -37,7 +37,7 @@ feeder_args:
++++-   drop_ratio: 1.0
++++- 
++++- model: slr_network.SLRModel
++++--decode_mode: beam
++++-+decode_mode: greedy #beam
++++- model_args:
++++-   num_classes: 1296
++++-   c2d_type: resnet18
+++++diff --git a/work_dir/baseline_res18/code.tar.gz b/work_dir/baseline_res18/code.tar.gz
+++++index a1e3f0b..de97d1a 100644
+++++Binary files a/work_dir/baseline_res18/code.tar.gz and b/work_dir/baseline_res18/code.tar.gz differ
++++diff --git a/work_dir/baseline_res18/log.txt b/work_dir/baseline_res18/log.txt
++++index 5515d11..beb3ba3 100644
++++--- a/work_dir/baseline_res18/log.txt
+++++++ b/work_dir/baseline_res18/log.txt
++++@@ -16,3 +16,6 @@
++++ [ Wed Jul 24 20:35:38 2024 ] Parameters:
++++ {'work_dir': './work_dir/baseline_res18/', 'config': './configs/baseline.yaml', 'random_fix': True, 'device': '0', 'phase': 'train', 'save_interval': 5, 'random_seed': 0, 'eval_interval': 1, 'print_log': True, 'log_interval': 50, 'evaluate_tool': 'sclite', 'feeder': 'dataset.dataloader_video.BaseFeeder', 'dataset': 'phoenix14', 'dataset_info': {'dataset_root': './dataset/phoenix2014/phoenix-2014-multisigner', 'dict_path': './preprocess/phoenix2014/gloss_dict.npy', 'evaluation_dir': './evaluation/slr_eval', 'evaluation_prefix': 'phoenix2014-groundtruth'}, 'num_worker': 0, 'feeder_args': {'mode': 'test', 'datatype': 'video', 'num_gloss': -1, 'drop_ratio': 1.0, 'prefix': './dataset/phoenix2014/phoenix-2014-multisigner', 'transform_mode': False}, 'model': 'slr_network.SLRModel', 'model_args': {'num_classes': 1296, 'c2d_type': 'resnet18', 'conv_type': 2, 'use_bn': 1, 'share_classifier': False, 'weight_norm': False}, 'load_weights': None, 'load_checkpoints': None, 'decode_mode': 'greedy', 'ignore_weights': [], 'batch_size': 1, 'test_batch_size': 1, 'loss_weights': {'SeqCTC': 1.0}, 'optimizer_args': {'optimizer': 'Adam', 'base_lr': 0.0001, 'step': [20, 35], 'learning_ratio': 1, 'weight_decay': 0.0001, 'start_epoch': 0, 'nesterov': False}, 'num_epoch': 10}
++++ 
+++++[ Mon Aug 12 14:03:38 2024 ] Parameters:
+++++{'work_dir': './work_dir/baseline_res18/', 'config': './configs/baseline.yaml', 'random_fix': True, 'device': '0', 'phase': 'train', 'save_interval': 5, 'random_seed': 0, 'eval_interval': 1, 'print_log': True, 'log_interval': 50, 'evaluate_tool': 'sclite', 'feeder': 'dataset.dataloader_video.BaseFeeder', 'dataset': 'phoenix14', 'dataset_info': {'dataset_root': './dataset/phoenix2014/phoenix-2014-multisigner', 'dict_path': './preprocess/phoenix2014/gloss_dict.npy', 'evaluation_dir': './evaluation/slr_eval', 'evaluation_prefix': 'phoenix2014-groundtruth'}, 'num_worker': 0, 'feeder_args': {'mode': 'test', 'datatype': 'video', 'num_gloss': -1, 'drop_ratio': 1.0, 'prefix': './dataset/phoenix2014/phoenix-2014-multisigner', 'transform_mode': False}, 'model': 'slr_network.SLRModel', 'model_args': {'num_classes': 1296, 'c2d_type': 'resnet18', 'conv_type': 2, 'use_bn': 1, 'share_classifier': False, 'weight_norm': False}, 'load_weights': None, 'load_checkpoints': None, 'decode_mode': 'greedy', 'ignore_weights': [], 'batch_size': 1, 'test_batch_size': 1, 'loss_weights': {'SeqCTC': 1.0}, 'optimizer_args': {'optimizer': 'Adam', 'base_lr': 0.0001, 'step': [20, 35], 'learning_ratio': 1, 'weight_decay': 0.0001, 'start_epoch': 0, 'nesterov': False}, 'num_epoch': 10}
+++++
+++diff --git a/work_dir/baseline_res18/log.txt b/work_dir/baseline_res18/log.txt
+++index 5515d11..f7ffa10 100644
+++--- a/work_dir/baseline_res18/log.txt
++++++ b/work_dir/baseline_res18/log.txt
+++@@ -16,3 +16,9 @@
+++ [ Wed Jul 24 20:35:38 2024 ] Parameters:
+++ {'work_dir': './work_dir/baseline_res18/', 'config': './configs/baseline.yaml', 'random_fix': True, 'device': '0', 'phase': 'train', 'save_interval': 5, 'random_seed': 0, 'eval_interval': 1, 'print_log': True, 'log_interval': 50, 'evaluate_tool': 'sclite', 'feeder': 'dataset.dataloader_video.BaseFeeder', 'dataset': 'phoenix14', 'dataset_info': {'dataset_root': './dataset/phoenix2014/phoenix-2014-multisigner', 'dict_path': './preprocess/phoenix2014/gloss_dict.npy', 'evaluation_dir': './evaluation/slr_eval', 'evaluation_prefix': 'phoenix2014-groundtruth'}, 'num_worker': 0, 'feeder_args': {'mode': 'test', 'datatype': 'video', 'num_gloss': -1, 'drop_ratio': 1.0, 'prefix': './dataset/phoenix2014/phoenix-2014-multisigner', 'transform_mode': False}, 'model': 'slr_network.SLRModel', 'model_args': {'num_classes': 1296, 'c2d_type': 'resnet18', 'conv_type': 2, 'use_bn': 1, 'share_classifier': False, 'weight_norm': False}, 'load_weights': None, 'load_checkpoints': None, 'decode_mode': 'greedy', 'ignore_weights': [], 'batch_size': 1, 'test_batch_size': 1, 'loss_weights': {'SeqCTC': 1.0}, 'optimizer_args': {'optimizer': 'Adam', 'base_lr': 0.0001, 'step': [20, 35], 'learning_ratio': 1, 'weight_decay': 0.0001, 'start_epoch': 0, 'nesterov': False}, 'num_epoch': 10}
+++ 
++++[ Mon Aug 12 14:03:38 2024 ] Parameters:
++++{'work_dir': './work_dir/baseline_res18/', 'config': './configs/baseline.yaml', 'random_fix': True, 'device': '0', 'phase': 'train', 'save_interval': 5, 'random_seed': 0, 'eval_interval': 1, 'print_log': True, 'log_interval': 50, 'evaluate_tool': 'sclite', 'feeder': 'dataset.dataloader_video.BaseFeeder', 'dataset': 'phoenix14', 'dataset_info': {'dataset_root': './dataset/phoenix2014/phoenix-2014-multisigner', 'dict_path': './preprocess/phoenix2014/gloss_dict.npy', 'evaluation_dir': './evaluation/slr_eval', 'evaluation_prefix': 'phoenix2014-groundtruth'}, 'num_worker': 0, 'feeder_args': {'mode': 'test', 'datatype': 'video', 'num_gloss': -1, 'drop_ratio': 1.0, 'prefix': './dataset/phoenix2014/phoenix-2014-multisigner', 'transform_mode': False}, 'model': 'slr_network.SLRModel', 'model_args': {'num_classes': 1296, 'c2d_type': 'resnet18', 'conv_type': 2, 'use_bn': 1, 'share_classifier': False, 'weight_norm': False}, 'load_weights': None, 'load_checkpoints': None, 'decode_mode': 'greedy', 'ignore_weights': [], 'batch_size': 1, 'test_batch_size': 1, 'loss_weights': {'SeqCTC': 1.0}, 'optimizer_args': {'optimizer': 'Adam', 'base_lr': 0.0001, 'step': [20, 35], 'learning_ratio': 1, 'weight_decay': 0.0001, 'start_epoch': 0, 'nesterov': False}, 'num_epoch': 10}
++++
++++[ Mon Aug 12 14:13:22 2024 ] Parameters:
++++{'work_dir': './work_dir/baseline_res18/', 'config': './configs/baseline.yaml', 'random_fix': True, 'device': '0', 'phase': 'train', 'save_interval': 5, 'random_seed': 0, 'eval_interval': 1, 'print_log': True, 'log_interval': 50, 'evaluate_tool': 'sclite', 'feeder': 'dataset.dataloader_video.BaseFeeder', 'dataset': 'phoenix14', 'dataset_info': {'dataset_root': './dataset/phoenix2014/phoenix-2014-multisigner', 'dict_path': './preprocess/phoenix2014/gloss_dict.npy', 'evaluation_dir': './evaluation/slr_eval', 'evaluation_prefix': 'phoenix2014-groundtruth'}, 'num_worker': 0, 'feeder_args': {'mode': 'test', 'datatype': 'video', 'num_gloss': -1, 'drop_ratio': 1.0, 'prefix': './dataset/phoenix2014/phoenix-2014-multisigner', 'transform_mode': False}, 'model': 'slr_network.SLRModel', 'model_args': {'num_classes': 1296, 'c2d_type': 'vgg16', 'conv_type': 2, 'use_bn': 1, 'share_classifier': False, 'weight_norm': False}, 'load_weights': None, 'load_checkpoints': None, 'decode_mode': 'beam', 'ignore_weights': [], 'batch_size': 1, 'test_batch_size': 1, 'loss_weights': {'SeqCTC': 1.0}, 'optimizer_args': {'optimizer': 'Adam', 'base_lr': 0.0001, 'step': [20, 35], 'learning_ratio': 1, 'weight_decay': 0.0001, 'start_epoch': 0, 'nesterov': False}, 'num_epoch': 10}
++++
++diff --git a/work_dir/baseline_res18/log.txt b/work_dir/baseline_res18/log.txt
++index 5515d11..55e3243 100644
++--- a/work_dir/baseline_res18/log.txt
+++++ b/work_dir/baseline_res18/log.txt
++@@ -16,3 +16,12 @@
++ [ Wed Jul 24 20:35:38 2024 ] Parameters:
++ {'work_dir': './work_dir/baseline_res18/', 'config': './configs/baseline.yaml', 'random_fix': True, 'device': '0', 'phase': 'train', 'save_interval': 5, 'random_seed': 0, 'eval_interval': 1, 'print_log': True, 'log_interval': 50, 'evaluate_tool': 'sclite', 'feeder': 'dataset.dataloader_video.BaseFeeder', 'dataset': 'phoenix14', 'dataset_info': {'dataset_root': './dataset/phoenix2014/phoenix-2014-multisigner', 'dict_path': './preprocess/phoenix2014/gloss_dict.npy', 'evaluation_dir': './evaluation/slr_eval', 'evaluation_prefix': 'phoenix2014-groundtruth'}, 'num_worker': 0, 'feeder_args': {'mode': 'test', 'datatype': 'video', 'num_gloss': -1, 'drop_ratio': 1.0, 'prefix': './dataset/phoenix2014/phoenix-2014-multisigner', 'transform_mode': False}, 'model': 'slr_network.SLRModel', 'model_args': {'num_classes': 1296, 'c2d_type': 'resnet18', 'conv_type': 2, 'use_bn': 1, 'share_classifier': False, 'weight_norm': False}, 'load_weights': None, 'load_checkpoints': None, 'decode_mode': 'greedy', 'ignore_weights': [], 'batch_size': 1, 'test_batch_size': 1, 'loss_weights': {'SeqCTC': 1.0}, 'optimizer_args': {'optimizer': 'Adam', 'base_lr': 0.0001, 'step': [20, 35], 'learning_ratio': 1, 'weight_decay': 0.0001, 'start_epoch': 0, 'nesterov': False}, 'num_epoch': 10}
++ 
+++[ Mon Aug 12 14:03:38 2024 ] Parameters:
+++{'work_dir': './work_dir/baseline_res18/', 'config': './configs/baseline.yaml', 'random_fix': True, 'device': '0', 'phase': 'train', 'save_interval': 5, 'random_seed': 0, 'eval_interval': 1, 'print_log': True, 'log_interval': 50, 'evaluate_tool': 'sclite', 'feeder': 'dataset.dataloader_video.BaseFeeder', 'dataset': 'phoenix14', 'dataset_info': {'dataset_root': './dataset/phoenix2014/phoenix-2014-multisigner', 'dict_path': './preprocess/phoenix2014/gloss_dict.npy', 'evaluation_dir': './evaluation/slr_eval', 'evaluation_prefix': 'phoenix2014-groundtruth'}, 'num_worker': 0, 'feeder_args': {'mode': 'test', 'datatype': 'video', 'num_gloss': -1, 'drop_ratio': 1.0, 'prefix': './dataset/phoenix2014/phoenix-2014-multisigner', 'transform_mode': False}, 'model': 'slr_network.SLRModel', 'model_args': {'num_classes': 1296, 'c2d_type': 'resnet18', 'conv_type': 2, 'use_bn': 1, 'share_classifier': False, 'weight_norm': False}, 'load_weights': None, 'load_checkpoints': None, 'decode_mode': 'greedy', 'ignore_weights': [], 'batch_size': 1, 'test_batch_size': 1, 'loss_weights': {'SeqCTC': 1.0}, 'optimizer_args': {'optimizer': 'Adam', 'base_lr': 0.0001, 'step': [20, 35], 'learning_ratio': 1, 'weight_decay': 0.0001, 'start_epoch': 0, 'nesterov': False}, 'num_epoch': 10}
+++
+++[ Mon Aug 12 14:13:22 2024 ] Parameters:
+++{'work_dir': './work_dir/baseline_res18/', 'config': './configs/baseline.yaml', 'random_fix': True, 'device': '0', 'phase': 'train', 'save_interval': 5, 'random_seed': 0, 'eval_interval': 1, 'print_log': True, 'log_interval': 50, 'evaluate_tool': 'sclite', 'feeder': 'dataset.dataloader_video.BaseFeeder', 'dataset': 'phoenix14', 'dataset_info': {'dataset_root': './dataset/phoenix2014/phoenix-2014-multisigner', 'dict_path': './preprocess/phoenix2014/gloss_dict.npy', 'evaluation_dir': './evaluation/slr_eval', 'evaluation_prefix': 'phoenix2014-groundtruth'}, 'num_worker': 0, 'feeder_args': {'mode': 'test', 'datatype': 'video', 'num_gloss': -1, 'drop_ratio': 1.0, 'prefix': './dataset/phoenix2014/phoenix-2014-multisigner', 'transform_mode': False}, 'model': 'slr_network.SLRModel', 'model_args': {'num_classes': 1296, 'c2d_type': 'vgg16', 'conv_type': 2, 'use_bn': 1, 'share_classifier': False, 'weight_norm': False}, 'load_weights': None, 'load_checkpoints': None, 'decode_mode': 'beam', 'ignore_weights': [], 'batch_size': 1, 'test_batch_size': 1, 'loss_weights': {'SeqCTC': 1.0}, 'optimizer_args': {'optimizer': 'Adam', 'base_lr': 0.0001, 'step': [20, 35], 'learning_ratio': 1, 'weight_decay': 0.0001, 'start_epoch': 0, 'nesterov': False}, 'num_epoch': 10}
+++
+++[ Mon Aug 12 14:14:58 2024 ] Parameters:
+++{'work_dir': './work_dir/baseline_res18/', 'config': './configs/baseline.yaml', 'random_fix': True, 'device': '0', 'phase': 'train', 'save_interval': 5, 'random_seed': 0, 'eval_interval': 1, 'print_log': True, 'log_interval': 50, 'evaluate_tool': 'sclite', 'feeder': 'dataset.dataloader_video.BaseFeeder', 'dataset': 'phoenix14', 'dataset_info': {'dataset_root': './dataset/phoenix2014/phoenix-2014-multisigner', 'dict_path': './preprocess/phoenix2014/gloss_dict.npy', 'evaluation_dir': './evaluation/slr_eval', 'evaluation_prefix': 'phoenix2014-groundtruth'}, 'num_worker': 0, 'feeder_args': {'mode': 'test', 'datatype': 'video', 'num_gloss': -1, 'drop_ratio': 1.0, 'prefix': './dataset/phoenix2014/phoenix-2014-multisigner', 'transform_mode': False}, 'model': 'slr_network.SLRModel', 'model_args': {'num_classes': 1296, 'c2d_type': 'mobilenet_v2', 'conv_type': 2, 'use_bn': 1, 'share_classifier': False, 'weight_norm': False}, 'load_weights': None, 'load_checkpoints': None, 'decode_mode': 'beam', 'ignore_weights': [], 'batch_size': 1, 'test_batch_size': 1, 'loss_weights': {'SeqCTC': 1.0}, 'optimizer_args': {'optimizer': 'Adam', 'base_lr': 0.0001, 'step': [20, 35], 'learning_ratio': 1, 'weight_decay': 0.0001, 'start_epoch': 0, 'nesterov': False}, 'num_epoch': 10}
+++
+diff --git a/work_dir/baseline_res18/log.txt b/work_dir/baseline_res18/log.txt
+index 5515d11..f2d2c39 100644
+--- a/work_dir/baseline_res18/log.txt
++++ b/work_dir/baseline_res18/log.txt
+@@ -16,3 +16,15 @@
+ [ Wed Jul 24 20:35:38 2024 ] Parameters:
+ {'work_dir': './work_dir/baseline_res18/', 'config': './configs/baseline.yaml', 'random_fix': True, 'device': '0', 'phase': 'train', 'save_interval': 5, 'random_seed': 0, 'eval_interval': 1, 'print_log': True, 'log_interval': 50, 'evaluate_tool': 'sclite', 'feeder': 'dataset.dataloader_video.BaseFeeder', 'dataset': 'phoenix14', 'dataset_info': {'dataset_root': './dataset/phoenix2014/phoenix-2014-multisigner', 'dict_path': './preprocess/phoenix2014/gloss_dict.npy', 'evaluation_dir': './evaluation/slr_eval', 'evaluation_prefix': 'phoenix2014-groundtruth'}, 'num_worker': 0, 'feeder_args': {'mode': 'test', 'datatype': 'video', 'num_gloss': -1, 'drop_ratio': 1.0, 'prefix': './dataset/phoenix2014/phoenix-2014-multisigner', 'transform_mode': False}, 'model': 'slr_network.SLRModel', 'model_args': {'num_classes': 1296, 'c2d_type': 'resnet18', 'conv_type': 2, 'use_bn': 1, 'share_classifier': False, 'weight_norm': False}, 'load_weights': None, 'load_checkpoints': None, 'decode_mode': 'greedy', 'ignore_weights': [], 'batch_size': 1, 'test_batch_size': 1, 'loss_weights': {'SeqCTC': 1.0}, 'optimizer_args': {'optimizer': 'Adam', 'base_lr': 0.0001, 'step': [20, 35], 'learning_ratio': 1, 'weight_decay': 0.0001, 'start_epoch': 0, 'nesterov': False}, 'num_epoch': 10}
+ 
++[ Mon Aug 12 14:03:38 2024 ] Parameters:
++{'work_dir': './work_dir/baseline_res18/', 'config': './configs/baseline.yaml', 'random_fix': True, 'device': '0', 'phase': 'train', 'save_interval': 5, 'random_seed': 0, 'eval_interval': 1, 'print_log': True, 'log_interval': 50, 'evaluate_tool': 'sclite', 'feeder': 'dataset.dataloader_video.BaseFeeder', 'dataset': 'phoenix14', 'dataset_info': {'dataset_root': './dataset/phoenix2014/phoenix-2014-multisigner', 'dict_path': './preprocess/phoenix2014/gloss_dict.npy', 'evaluation_dir': './evaluation/slr_eval', 'evaluation_prefix': 'phoenix2014-groundtruth'}, 'num_worker': 0, 'feeder_args': {'mode': 'test', 'datatype': 'video', 'num_gloss': -1, 'drop_ratio': 1.0, 'prefix': './dataset/phoenix2014/phoenix-2014-multisigner', 'transform_mode': False}, 'model': 'slr_network.SLRModel', 'model_args': {'num_classes': 1296, 'c2d_type': 'resnet18', 'conv_type': 2, 'use_bn': 1, 'share_classifier': False, 'weight_norm': False}, 'load_weights': None, 'load_checkpoints': None, 'decode_mode': 'greedy', 'ignore_weights': [], 'batch_size': 1, 'test_batch_size': 1, 'loss_weights': {'SeqCTC': 1.0}, 'optimizer_args': {'optimizer': 'Adam', 'base_lr': 0.0001, 'step': [20, 35], 'learning_ratio': 1, 'weight_decay': 0.0001, 'start_epoch': 0, 'nesterov': False}, 'num_epoch': 10}
++
++[ Mon Aug 12 14:13:22 2024 ] Parameters:
++{'work_dir': './work_dir/baseline_res18/', 'config': './configs/baseline.yaml', 'random_fix': True, 'device': '0', 'phase': 'train', 'save_interval': 5, 'random_seed': 0, 'eval_interval': 1, 'print_log': True, 'log_interval': 50, 'evaluate_tool': 'sclite', 'feeder': 'dataset.dataloader_video.BaseFeeder', 'dataset': 'phoenix14', 'dataset_info': {'dataset_root': './dataset/phoenix2014/phoenix-2014-multisigner', 'dict_path': './preprocess/phoenix2014/gloss_dict.npy', 'evaluation_dir': './evaluation/slr_eval', 'evaluation_prefix': 'phoenix2014-groundtruth'}, 'num_worker': 0, 'feeder_args': {'mode': 'test', 'datatype': 'video', 'num_gloss': -1, 'drop_ratio': 1.0, 'prefix': './dataset/phoenix2014/phoenix-2014-multisigner', 'transform_mode': False}, 'model': 'slr_network.SLRModel', 'model_args': {'num_classes': 1296, 'c2d_type': 'vgg16', 'conv_type': 2, 'use_bn': 1, 'share_classifier': False, 'weight_norm': False}, 'load_weights': None, 'load_checkpoints': None, 'decode_mode': 'beam', 'ignore_weights': [], 'batch_size': 1, 'test_batch_size': 1, 'loss_weights': {'SeqCTC': 1.0}, 'optimizer_args': {'optimizer': 'Adam', 'base_lr': 0.0001, 'step': [20, 35], 'learning_ratio': 1, 'weight_decay': 0.0001, 'start_epoch': 0, 'nesterov': False}, 'num_epoch': 10}
++
++[ Mon Aug 12 14:14:58 2024 ] Parameters:
++{'work_dir': './work_dir/baseline_res18/', 'config': './configs/baseline.yaml', 'random_fix': True, 'device': '0', 'phase': 'train', 'save_interval': 5, 'random_seed': 0, 'eval_interval': 1, 'print_log': True, 'log_interval': 50, 'evaluate_tool': 'sclite', 'feeder': 'dataset.dataloader_video.BaseFeeder', 'dataset': 'phoenix14', 'dataset_info': {'dataset_root': './dataset/phoenix2014/phoenix-2014-multisigner', 'dict_path': './preprocess/phoenix2014/gloss_dict.npy', 'evaluation_dir': './evaluation/slr_eval', 'evaluation_prefix': 'phoenix2014-groundtruth'}, 'num_worker': 0, 'feeder_args': {'mode': 'test', 'datatype': 'video', 'num_gloss': -1, 'drop_ratio': 1.0, 'prefix': './dataset/phoenix2014/phoenix-2014-multisigner', 'transform_mode': False}, 'model': 'slr_network.SLRModel', 'model_args': {'num_classes': 1296, 'c2d_type': 'mobilenet_v2', 'conv_type': 2, 'use_bn': 1, 'share_classifier': False, 'weight_norm': False}, 'load_weights': None, 'load_checkpoints': None, 'decode_mode': 'beam', 'ignore_weights': [], 'batch_size': 1, 'test_batch_size': 1, 'loss_weights': {'SeqCTC': 1.0}, 'optimizer_args': {'optimizer': 'Adam', 'base_lr': 0.0001, 'step': [20, 35], 'learning_ratio': 1, 'weight_decay': 0.0001, 'start_epoch': 0, 'nesterov': False}, 'num_epoch': 10}
++
++[ Mon Aug 12 14:16:15 2024 ] Parameters:
++{'work_dir': './work_dir/baseline_res18/', 'config': './configs/baseline.yaml', 'random_fix': True, 'device': '0', 'phase': 'train', 'save_interval': 5, 'random_seed': 0, 'eval_interval': 1, 'print_log': True, 'log_interval': 50, 'evaluate_tool': 'sclite', 'feeder': 'dataset.dataloader_video.BaseFeeder', 'dataset': 'phoenix14', 'dataset_info': {'dataset_root': './dataset/phoenix2014/phoenix-2014-multisigner', 'dict_path': './preprocess/phoenix2014/gloss_dict.npy', 'evaluation_dir': './evaluation/slr_eval', 'evaluation_prefix': 'phoenix2014-groundtruth'}, 'num_worker': 0, 'feeder_args': {'mode': 'test', 'datatype': 'video', 'num_gloss': -1, 'drop_ratio': 1.0, 'prefix': './dataset/phoenix2014/phoenix-2014-multisigner', 'transform_mode': False}, 'model': 'slr_network.SLRModel', 'model_args': {'num_classes': 1296, 'c2d_type': 'mobilenet_v2', 'conv_type': 2, 'use_bn': 1, 'share_classifier': False, 'weight_norm': False}, 'load_weights': None, 'load_checkpoints': None, 'decode_mode': 'beam', 'ignore_weights': [], 'batch_size': 1, 'test_batch_size': 1, 'loss_weights': {'SeqCTC': 1.0}, 'optimizer_args': {'optimizer': 'Adam', 'base_lr': 0.0001, 'step': [20, 35], 'learning_ratio': 1, 'weight_decay': 0.0001, 'start_epoch': 0, 'nesterov': False}, 'num_epoch': 10}
++

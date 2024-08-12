@@ -190,6 +190,7 @@ def import_class(name):
 if __name__ == '__main__':
     sparser = utils.get_parser()
     p = sparser.parse_args()
+    print(p)
     # p.config = "baseline_iter.yaml"
     if p.config is not None:
         with open(p.config, 'r') as f:

@@ -37,10 +37,10 @@ feeder_args:
   drop_ratio: 1.0
 
 model: slr_network.SLRModel
-decode_mode: greedy #beam
+decode_mode: beam
 model_args:
   num_classes: 1296
-  c2d_type: resnet18
+  c2d_type: mobilenet_v2 #resnet18
   conv_type: 2
   use_bn: 1
   # SMKD
