@@ -60,8 +60,8 @@ def seq_eval(cfg, loader, model, device, mode, epoch, work_dir, recoder,
         total_conv_sent += ret_dict['conv_sents']
     try:
         python_eval = True if evaluate_tool == "python" else False
-        write2file(work_dir + "out.output-hypothesis-{}.ctm".format(mode), total_info, total_sent)
-        write2file(work_dir + "out.output-hypothesis-{}-conv.ctm".format(mode), total_info,
+        write2file(work_dir + "output-hypothesis-{}.ctm".format(mode), total_info, total_sent)
+        write2file(work_dir + "output-hypothesis-{}-conv.ctm".format(mode), total_info,
                     total_conv_sent)
         conv_ret = evaluate(
             prefix=work_dir, mode=mode, output_file="output-hypothesis-{}-conv.ctm".format(mode),
