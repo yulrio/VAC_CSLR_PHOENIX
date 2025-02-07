@@ -40,7 +40,7 @@ def seq_train(loader, model, optimizer, device, epoch_idx, recoder):
 
 
 def seq_eval(cfg, loader, model, device, mode, epoch, work_dir, recoder,
-             evaluate_tool="python"):
+                evaluate_tool="python"):
     model.eval()
     total_sent = []
     total_info = []
@@ -62,7 +62,7 @@ def seq_eval(cfg, loader, model, device, mode, epoch, work_dir, recoder,
         python_eval = True if evaluate_tool == "python" else False
         write2file(work_dir + "output-hypothesis-{}.ctm".format(mode), total_info, total_sent)
         write2file(work_dir + "output-hypothesis-{}-conv.ctm".format(mode), total_info,
-                   total_conv_sent)
+                    total_conv_sent)
         conv_ret = evaluate(
             prefix=work_dir, mode=mode, output_file="output-hypothesis-{}-conv.ctm".format(mode),
             evaluate_dir=cfg.dataset_info['evaluation_dir'],
@@ -136,4 +136,4 @@ def write2file(path, info, output):
                 "{} 1 {:.2f} {:.2f} {}\n".format(info[sample_idx],
                                                  word_idx * 1.0 / 100,
                                                  (word_idx + 1) * 1.0 / 100,
-                                                 word[0]))
+                                                    word[0]))
