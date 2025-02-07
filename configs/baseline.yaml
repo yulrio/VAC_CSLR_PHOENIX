@@ -13,7 +13,7 @@ log_interval: 50
 eval_interval: 1
 save_interval: 5
 # python in default
-evaluate_tool: sclite
+# evaluate_tool: sclite
 loss_weights:
   SeqCTC: 1.0
   # VAC

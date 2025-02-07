@@ -4,8 +4,8 @@ from .python_wer_evaluation import wer_calculation
 
 
 def evaluate(prefix="./", mode="dev", evaluate_dir=None, evaluate_prefix=None,
-             output_file=None, output_dir=None, python_evaluate=False,
-             triplet=False):
+                output_file=None, output_dir=None, python_evaluate=False,
+                triplet=False):
     '''
     TODO  change file save path
     '''
