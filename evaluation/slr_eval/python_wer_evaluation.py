@@ -32,7 +32,7 @@ def load_prediction(fpath):
 
 
 def get_wer_delsubins(ref, hyp, merge_same=False, align_results=False,
-                      penalty={'ins': 1, 'del': 1, 'sub': 1}):
+                        penalty={'ins': 1, 'del': 1, 'sub': 1}):
     # whether merge glosses before evaluation
     hyp = hyp if not merge_same else [x[0] for x in groupby(hyp)]
 
@@ -153,11 +153,11 @@ def calculate_stats(gt, lstm_pred, conv_pred=None):
 def sent_evaluation(**kwargs):
     if "conv_prediction" in kwargs.keys():
         ret1 = get_wer_delsubins(kwargs['gt'], kwargs['conv_prediction'],
-                                 merge_same=kwargs['merge_same'],
-                                 penalty=kwargs['penalty'])
+                                    merge_same=kwargs['merge_same'],
+                                    penalty=kwargs['penalty'])
         ret2 = get_wer_delsubins(kwargs['gt'], kwargs['lstm_prediction'],
-                                 merge_same=kwargs['merge_same'],
-                                 penalty=kwargs['penalty'])
+                                    merge_same=kwargs['merge_same'],
+                                    penalty=kwargs['penalty'])
         new_gt = get_wer_delsubins(
             ret1[0], ret2[0],
             merge_same=kwargs['merge_same'],
@@ -178,8 +178,8 @@ def sent_evaluation(**kwargs):
         return calculate_stats(new_gt, lstm_pred, conv_pred)
 
     gt, lstm_pred = get_wer_delsubins(kwargs['gt'], kwargs['lstm_prediction'],
-                                      merge_same=kwargs['merge_same'],
-                                      penalty=kwargs['penalty'])
+                                        merge_same=kwargs['merge_same'],
+                                        penalty=kwargs['penalty'])
     return calculate_stats(gt, lstm_pred)
 
 
